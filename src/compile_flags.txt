@@ -1,0 +1,3 @@
+-I../glfw/build/include
+-I../glad/include
+
