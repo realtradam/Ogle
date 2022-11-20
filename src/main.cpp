@@ -24,16 +24,16 @@ void main()
 } 
 )";
 
-//float vertices[] = {
-//     0.5f,  0.5f, 0.0f,  // top right
-//     0.5f, -0.5f, 0.0f,  // bottom right
-//    -0.5f, -0.5f, 0.0f,  // bottom left
-//    -0.5f,  0.5f, 0.0f   // top left 
-//};
-//unsigned int indices[] = {  // note that we start from 0!
-//    0, 1, 3,   // first triangle
-//    1, 2, 3    // second triangle
-//};  
+float vertices[] = {
+     0.5f,  0.5f, 0.0f,  // top right
+     0.5f, -0.5f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  // bottom left
+    -0.5f,  0.5f, 0.0f   // top left 
+};
+unsigned int indices[] = {  // note that we start from 0!
+    0, 1, 3,   // first triangle
+    1, 2, 3    // second triangle
+};  
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -64,14 +64,6 @@ int main() {
 	glViewport(0, 0, 800, 600);
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	// Vertex Input
-	float vertices[] = {
-		-0.5f,  -0.5f, 0.0f,
-		0.5f,  -0.5f, 0.0f,
-		0.0f,   0.5f, 0.0f
-	};
-
 
 	unsigned int vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER); // create a blank shader
@@ -122,16 +114,23 @@ int main() {
 	glDeleteShader(vertexShader); // we dont need these anymore once they are linked in the shader program
 	glDeleteShader(fragmentShader);
 
-	unsigned int VBO, VAO;
+	unsigned int VBO, VAO, EBO;
 	glGenBuffers(1, &VBO); // generate the buffer
+	glGenBuffers(1, &EBO);
+
 	glGenVertexArrays(1, &VAO); // generate array
 	glBindVertexArray(VAO); // bind array to apply "settings" to it
+							
 	glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind(activate) the buffer to the ARRAY_BUFFER
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // upload the data
+																			   //
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // configure how the vertex array looks
 	glEnableVertexAttribArray(0);
 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// game loop
 	while(!glfwWindowShouldClose(window))
@@ -144,7 +143,8 @@ int main() {
 
 		glUseProgram(shaderProgram); // this will activate the shader and use them for all subsequent shader and render calls
 		glBindVertexArray(VAO); // activate the preconfigured settings
-		glDrawArrays(GL_TRIANGLES, 0, 3); // :)
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // :)
+		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
