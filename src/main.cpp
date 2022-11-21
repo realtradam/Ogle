@@ -2,37 +2,23 @@
 #include <GLFW/glfw3.h>
 
 #include "input.h"
+#include "shader.hpp"
 
 #include <iostream>
-
-const char *vertexShaderSource = R"(
-#version 330 core
-layout (location = 0) in vec3 aPos;
-
-void main()
-{
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}
-)";
-const char *fragmentShaderSource = R"(
-#version 330 core
-out vec4 FragColor;
-
-void main()
-{
-    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-} 
-)";
+#include <cmath>
+//#include <unistd.h> // use to print working directory
+//#include <stdio.h>
 
 float vertices[] = {
-     0.5f,  0.5f, 0.0f,  // top right
-     0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left 
+	// positions		// colors
+	0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  // top right
+	0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
+	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // bottom left
+	-0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f   // top left 
 };
 unsigned int indices[] = {  // note that we start from 0!
-    0, 1, 3,   // first triangle
-    1, 2, 3    // second triangle
+	0, 1, 3,   // first triangle
+	1, 2, 3    // second triangle
 };  
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -41,6 +27,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 int main() {
+	//printf("Current working dir: %s\n", get_current_dir_name());
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // 4.6 is highest
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -65,54 +52,7 @@ int main() {
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER); // create a blank shader
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-	{ // check if shader compiled successfully
-		int success;
-		char infoLog[512];
-		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-		if(!success)
-		{
-			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-		}
-	}
-
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-	{ // check if shader compiled successfully
-		int success;
-		char infoLog[512];
-		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-		if(!success)
-		{
-			glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-		}
-	}
-
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-	{ // check if shader compiled successfully
-		int success;
-		char infoLog[512];
-		glGetShaderiv(shaderProgram, GL_LINK_STATUS, &success);
-		if(!success)
-		{
-			glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << std::endl;
-		}
-	}
-
-	glDeleteShader(vertexShader); // we dont need these anymore once they are linked in the shader program
-	glDeleteShader(fragmentShader);
+	Shader shader = Shader("src/shaders/default.vert", "src/shaders/default.frag");
 
 	unsigned int VBO, VAO, EBO;
 	glGenBuffers(1, &VBO); // generate the buffer
@@ -120,17 +60,27 @@ int main() {
 
 	glGenVertexArrays(1, &VAO); // generate array
 	glBindVertexArray(VAO); // bind array to apply "settings" to it
-							
+
 	glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind(activate) the buffer to the ARRAY_BUFFER
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // upload the data
-																			   //
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // configure how the vertex array looks
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // configure how the vertex array looks
 	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // configure how the vertex array looks
+	glEnableVertexAttribArray(1);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe mode
+
+	//{
+	//	int nrAttributes;
+	//	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+	//	std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
+	//}
 
 	// game loop
 	while(!glfwWindowShouldClose(window))
@@ -141,7 +91,15 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 
-		glUseProgram(shaderProgram); // this will activate the shader and use them for all subsequent shader and render calls
+		//glUseProgram(shaderProgram); // this will activate the shader and use them for all subsequent shader and render calls
+		shader.use();
+
+		float timeValue = glfwGetTime();
+		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+		//int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+		//glUniform4f(vertexColorLocation, 1.0f - greenValue, greenValue, (greenValue / 2.0f) + 0.25f, 1.0f);
+		shader.set4f("ourColor", 1.0f - greenValue, greenValue, (greenValue / 2.0f) + 0.25f, 1.0f);
+
 		glBindVertexArray(VAO); // activate the preconfigured settings
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // :)
 		glBindVertexArray(0);
