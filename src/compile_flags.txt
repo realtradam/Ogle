@@ -1,3 +1,4 @@
 -I../glfw/build/include
 -I../glad/include
+-I../stb
 -I./

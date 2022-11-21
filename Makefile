@@ -1,7 +1,7 @@
 
 EXE := game
 BUILD_DIR := build
-INC_FLAGS := -Isrc -Iglfw/build/include -Iglad/include
+INC_FLAGS := -Isrc -Iglfw/build/include -Iglad/include -Istb
 LINK_FLAGS := -lGL -lX11 -lpthread -lXrandr -lXi -ldl
 OBJ_NAMES := glad.o input.o shader.o
 OBJ_FILES := $(addprefix $(BUILD_DIR)/, $(OBJ_NAMES))

@@ -1,8 +1,10 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 
-#include "input.h"
+#include "input.hpp"
 #include "shader.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include <iostream>
 #include <cmath>
@@ -10,11 +12,11 @@
 //#include <stdio.h>
 
 float vertices[] = {
-	// positions		// colors
-	0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  // top right
-	0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
-	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // bottom left
-	-0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f   // top left 
+	// positions		 // colors		    // texture coords
+	0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,  1.0f, 1.0f,  // top right
+	0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  1.0f, 0.0f,  // bottom right
+	-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,  // bottom left
+	-0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f   // top left 
 };
 unsigned int indices[] = {  // note that we start from 0!
 	0, 1, 3,   // first triangle
@@ -68,11 +70,14 @@ int main() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // configure how the vertex array looks
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // configure how the vertex array looks
 	glEnableVertexAttribArray(0);
 	// color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // configure how the vertex array looks
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // configure how the vertex array looks
 	glEnableVertexAttribArray(1);
+	//texture attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); // configure how the vertex array looks
+	glEnableVertexAttribArray(2);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe mode
 
@@ -81,6 +86,56 @@ int main() {
 	//	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
 	//	std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
 	//}
+
+	// Image/Texture stuffs
+	unsigned int texture1, texture2;
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+	{
+		int width, height, nrChannels;
+		unsigned char *data = stbi_load("assets/container.jpg", &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		stbi_image_free(data);
+	}
+	glGenTextures(2, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+	{
+		int width, height, nrChannels;
+		unsigned char *data = stbi_load("assets/awesomeface.png", &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		stbi_image_free(data);
+	}
+	shader.use();
+	shader.setInt("texture1", 0);
+	shader.setInt("texture2", 1);
 
 	// game loop
 	while(!glfwWindowShouldClose(window))
@@ -96,10 +151,14 @@ int main() {
 
 		float timeValue = glfwGetTime();
 		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-		//int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		//glUniform4f(vertexColorLocation, 1.0f - greenValue, greenValue, (greenValue / 2.0f) + 0.25f, 1.0f);
 		shader.set4f("ourColor", 1.0f - greenValue, greenValue, (greenValue / 2.0f) + 0.25f, 1.0f);
 
+		shader.set1f("offset_x", greenValue - 0.5);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
 		glBindVertexArray(VAO); // activate the preconfigured settings
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // :)
 		glBindVertexArray(0);
