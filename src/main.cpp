@@ -3,8 +3,7 @@
 
 #include "input.hpp"
 #include "shader.hpp"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "texture.hpp"
 
 #include <iostream>
 #include <cmath>
@@ -88,54 +87,57 @@ int main() {
 	//}
 
 	// Image/Texture stuffs
-	unsigned int texture1, texture2;
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-	// set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load and generate the texture
-	{
-		int width, height, nrChannels;
-		unsigned char *data = stbi_load("assets/container.jpg", &width, &height, &nrChannels, 0);
-		if (data)
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-		else
-		{
-			std::cout << "Failed to load texture" << std::endl;
-		}
-		stbi_image_free(data);
-	}
-	glGenTextures(2, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-	// set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load and generate the texture
-	{
-		int width, height, nrChannels;
-		unsigned char *data = stbi_load("assets/awesomeface.png", &width, &height, &nrChannels, 0);
-		if (data)
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-		else
-		{
-			std::cout << "Failed to load texture" << std::endl;
-		}
-		stbi_image_free(data);
-	}
+//	unsigned int texture1, texture2;
+//	glGenTextures(1, &texture1);
+//	glBindTexture(GL_TEXTURE_2D, texture1);
+//	// set the texture wrapping/filtering options (on the currently bound texture object)
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//	// load and generate the texture
+//	{
+//		int width, height, nrChannels;
+//		unsigned char *data = stbi_load("assets/container.jpg", &width, &height, &nrChannels, 0);
+//		if (data)
+//		{
+//			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+//			glGenerateMipmap(GL_TEXTURE_2D);
+//		}
+//		else
+//		{
+//			std::cout << "Failed to load texture" << std::endl;
+//		}
+//		stbi_image_free(data);
+//	}
+//	glGenTextures(2, &texture2);
+//	glBindTexture(GL_TEXTURE_2D, texture2);
+//	// set the texture wrapping/filtering options (on the currently bound texture object)
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//	// load and generate the texture
+//	{
+//		int width, height, nrChannels;
+//		unsigned char *data = stbi_load("assets/awesomeface.png", &width, &height, &nrChannels, 0);
+//		if (data)
+//		{
+//			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+//			glGenerateMipmap(GL_TEXTURE_2D);
+//		}
+//		else
+//		{
+//			std::cout << "Failed to load texture" << std::endl;
+//		}
+//		stbi_image_free(data);
+//	}
+	Texture texture3 = Texture("assets/awesomeface.png", VAO, VBO);
 	shader.use();
 	shader.setInt("texture1", 0);
 	shader.setInt("texture2", 1);
+
+	float pi = 2.0f * acos(0.0f);
 
 	// game loop
 	while(!glfwWindowShouldClose(window))
@@ -150,17 +152,31 @@ int main() {
 		shader.use();
 
 		float timeValue = glfwGetTime();
-		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+		float greenValue = 1.0f;//(sin(timeValue) / 2.0f) + 0.5f;
 		shader.set4f("ourColor", 1.0f - greenValue, greenValue, (greenValue / 2.0f) + 0.25f, 1.0f);
 
 		shader.set1f("offset_x", greenValue - 0.5);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-		glBindVertexArray(VAO); // activate the preconfigured settings
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // :)
+		float sin_move0 = sin((timeValue) / 2.0f) / 2.0f;
+		float cos_move0 = cos((timeValue) / 2.0f) / 2.0f;
+		float sin_move1 = sin((timeValue + (1*pi)) / 2.0f) / 2.0f;
+		float cos_move1 = cos((timeValue + (1*pi)) / 2.0f) / 2.0f;
+		float sin_move2 = sin((timeValue + (2*pi)) / 2.0f) / 2.0f;
+		float cos_move2 = cos((timeValue + (2*pi)) / 2.0f) / 2.0f;
+		float sin_move3 = sin((timeValue + (3*pi)) / 2.0f) / 2.0f;
+		float cos_move3 = cos((timeValue + (3*pi)) / 2.0f) / 2.0f;
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, texture1);
+		//glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_2D, texture2);
+		//glBindVertexArray(VAO); // activate the preconfigured settings
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // :)
+
+		texture3.draw(cos_move0, sin_move0, 0.5, 0.5);
+		texture3.draw(cos_move1, sin_move1, 0.5, 0.5);
+		texture3.draw(cos_move2, sin_move2, 0.5, 0.5);
+		texture3.draw(cos_move3, sin_move3, 0.5, 0.5);
+		//drawTexture(texture1, VAO, VBO, -0.5, -0.5, 0.5, 0.5);
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
