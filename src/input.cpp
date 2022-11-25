@@ -1,8 +1,11 @@
 #include "input.hpp"
 #include "GLFW/glfw3.h"
 
-void processInput(GLFWwindow *window)
+namespace Input
 {
-	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
+	void process(GLFWwindow *window)
+	{
+		if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, true);
+	}
 }
