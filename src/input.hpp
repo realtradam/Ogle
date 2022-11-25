@@ -1,4 +1,6 @@
 #pragma once
+
+// external libs
 #include "GLFW/glfw3.h"
 
 namespace Input {

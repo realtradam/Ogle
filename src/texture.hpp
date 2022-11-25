@@ -1,4 +1,6 @@
 #pragma once
+
+// external libs
 #include "glad/glad.h"
 
 class Texture

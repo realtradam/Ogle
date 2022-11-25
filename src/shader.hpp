@@ -1,12 +1,13 @@
 #pragma once
 
-#include <string>
-
+// external libs
 #include "glad/glad.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+// std libs
+#include <string>
 
 class Shader
 {
@@ -19,7 +20,7 @@ class Shader
 		// activate the shader
 		void use();
 
-		// utility functions for uniforms
+		// utility setter functions for uniforms
 		void setBool(const std::string &name, bool value) const;
 		void setInt(const std::string &name, int value) const;
 		void set1f(const std::string &name, float value) const;

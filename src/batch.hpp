@@ -1,11 +1,14 @@
 #pragma once
 
-#include <vector>
-
+// external libs
 #include "glad/glad.h"
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
 
+// project headers
 #include "texture.hpp"
+
+// std libs
+#include <vector>
 
 class Batch
 {
@@ -32,7 +35,7 @@ class Batch
 				float height,
 				glm::vec4 color
 				);
-		void flush_batch();
+		void flush();
 	private:
 		int primativeDrawQuad(
 				unsigned int texture_id,

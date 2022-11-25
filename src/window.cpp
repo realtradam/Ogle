@@ -1,6 +1,12 @@
+
+// external libs
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+// project headers
+#include "window.hpp"
+
+// std libs
 #include <iostream>
 
 namespace Window {
@@ -25,7 +31,7 @@ namespace Window {
 			)
 	{
 		glfwInit();
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // 4.6 is highest
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // 4.6 is highest, but lets use 3.3 for compatability
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -53,6 +59,7 @@ namespace Window {
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		return 0;
 	}
 }

@@ -1,10 +1,14 @@
-#include "batch.hpp"
 
-#include <vector>
-#include <iostream>
+// external libs
 #include "glad/glad.h"
 
+// project headers
+#include "batch.hpp"
 #include "texture.hpp"
+
+// std libs
+#include <vector>
+#include <iostream>
 
 
 Batch::Batch(unsigned int batch_limit)
@@ -118,7 +122,7 @@ int Batch::primativeDrawQuad(
 	// if surpassing batch limit
 	// or if texture is different
 	if((size >= batch_limit) || ((last_texture != texture_id) && (texture_id != 0)))
-		this->flush_batch(); last_texture = texture_id;
+		this->flush(); last_texture = texture_id;
 
 
 	float verts[] = {
@@ -159,7 +163,7 @@ int Batch::primativeDrawQuad(
 	return 0;
 }
 
-void Batch::flush_batch()
+void Batch::flush()
 {
 	glBindVertexArray(VAO);
 

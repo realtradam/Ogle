@@ -1,5 +1,10 @@
-#include "input.hpp"
+
+// external libs
 #include "GLFW/glfw3.h"
+
+// project headers
+#include "input.hpp"
+
 
 namespace Input
 {

@@ -1,19 +1,22 @@
+
+// external libs
+#include "glad/glad.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+// project headers
 #include "shader.hpp"
 
+// std libs
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
-#include "glad/glad.h"
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
-	// 1. retrieve the vertex/fragment source code from filePath
+	// -- read shaders from file --
 	std::string vertexCode;
 	std::string fragmentCode;
 	std::ifstream vShaderFile;
@@ -44,7 +47,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();
 
-	// 2. compile shaders
+	// -- compile shaders --
 	unsigned int vertex, fragment;
 	int success;
 	char infoLog[512];
@@ -53,7 +56,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	vertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex, 1, &vShaderCode, NULL);
 	glCompileShader(vertex);
-	// print compile errors if any
 	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
 	if(!success)
 	{
@@ -65,18 +67,18 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment, 1, &fShaderCode, NULL);
 	glCompileShader(fragment);
-	// print compile errors if any
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 	if(!success)
 	{
 		glGetShaderInfoLog(fragment, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	};
+
+	// linking shaders
 	this->ID = glCreateProgram();
 	glAttachShader(ID, vertex);
 	glAttachShader(ID, fragment);
 	glLinkProgram(ID);
-	// print linking errors if any
 	glGetProgramiv(ID, GL_LINK_STATUS, &success);
 	if(!success)
 	{
@@ -84,6 +86,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
+	// cleanup uneeded pre-linked shaders
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 }
@@ -92,6 +95,9 @@ void Shader::use()
 {
 	glUseProgram(ID);
 }
+
+
+// -- various setters for shader uniforms --
 
 void Shader::setBool(const std::string &name, bool value) const
 {

@@ -1,9 +1,14 @@
-#include "texture.hpp"
 
-#include <iostream>
+//external libs
 #include "glad/glad.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+// project headers
+#include "texture.hpp"
+
+// std libs
+#include <iostream>
 
 Texture::Texture(const char* texture_path)
 {
@@ -15,7 +20,6 @@ Texture::Texture(const char* texture_path)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	int width, height, nrChannels;
-	//stbi_set_flip_vertically_on_load(true);
 	unsigned char *data = stbi_load(texture_path, &width, &height, &nrChannels, 0);
 	if (data)
 	{

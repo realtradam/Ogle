@@ -1,58 +1,70 @@
+
+// external libs
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
+// project headers
 #include "input.hpp"
 #include "shader.hpp"
 #include "batch.hpp"
 #include "window.hpp"
 #include "random.hpp"
 
+// std libs
 #include <iostream>
 #include <cmath>
 #include <chrono>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 450;
 
+const int MAX_BUNNIES = 15000;
 typedef struct Bunny {
 	glm::vec2 position;
 	glm::vec2 speed;
 	glm::vec4 color;
 } Bunny;
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 450;
-
-
 int main() {
+
+	// init glfw window
 	Window::init(SCREEN_WIDTH, SCREEN_HEIGHT, "Ogle");
 
+	// init various opengl components
 	Shader shader = Shader("src/shaders/default.vert", "src/shaders/default.frag");
 	Batch batch = Batch(1024 * 8);
 	Texture texture = Texture("assets/wabbit_alpha.png");
 
+	// setup projection matrix
+	//   Here we swap the height-begin and
+	//   height-end values to flip it as opengl is "upsidedown"
 	glm::mat4 transform = glm::ortho(0.0f, (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT, 0.0f, 0.1f, 100.0f);
 	shader.use();
 	shader.setMatrix4fv("transform", transform);
 
-	auto start = std::chrono::high_resolution_clock::now();
-	auto stop = std::chrono::high_resolution_clock::now();
-
+	// setup bunnies
 	std::vector<Bunny> bunnies = std::vector<Bunny>{};
-	const int MAX_BUNNIES = 50000;
+	bunnies.reserve(MAX_BUNNIES * sizeof(Bunny));
+
+	// setup fps measuring
+	std::vector<int> fps_smoothing = std::vector<int>{};
 
 	// game loop
 	while(!glfwWindowShouldClose(Window::get()))
 	{
-		start = std::chrono::high_resolution_clock::now();
+		auto start_frametime = std::chrono::high_resolution_clock::now();
+
 		Input::process(Window::get());
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.4f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		shader.use();
 
+		// create bunnies when clicking
 		if(Input::get_mouse_click())
 		{
 			Bunny new_bunny;
@@ -73,7 +85,6 @@ int main() {
 					bunnies.push_back(new_bunny);
 				}
 			}
-			//batch.drawRectangle(100,100,50.0,50.0,glm::vec4(0.3,0.3,1.0,1.0));
 		}
 
 		// move bunnies
@@ -88,6 +99,7 @@ int main() {
 				bunnies.at(i).speed.y *= -1;
 		}
 
+		// render bunnies
 		for (int i = 0; i < bunnies.size(); i++)
 		{
 			batch.drawTexture(
@@ -99,22 +111,25 @@ int main() {
 					bunnies.at(i).color
 					);
 		}
-		//batch.drawTexture(texture,0.0,0.0,1.0,1.0,glm::vec4(1.0,1.0,1.0,0.5));
 
-		batch.flush_batch(); // does the drawing
-
+		batch.flush(); // forces remaining batched verts to be rendered
 
 		glfwSwapBuffers(Window::get());
 		glfwPollEvents();
-		stop = std::chrono::high_resolution_clock::now();
 
-		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+		auto end_frametime = std::chrono::high_resolution_clock::now();
+		auto frametime = std::chrono::duration_cast<std::chrono::microseconds>(end_frametime - start_frametime);
 
-		std::cout << bunnies.size();
-		std::cout << " Bunnies at ";
-		std::cout << round(1.0f/((float)duration.count() / 10000000.0f))/10.0;
-		std::cout << " FPS";
-		std::cout << std::endl;
+		if(fps_smoothing.size() >= 30)
+			fps_smoothing.erase(fps_smoothing.begin());
+		fps_smoothing.push_back(round(1.0f/((float)frametime.count() / 1000000.0f)));
+		int average = 0;
+		for(int i = 0; i < fps_smoothing.size(); i++)
+		{
+			average += fps_smoothing.at(i);
+		}
+		average /= fps_smoothing.size();
+		std::cout << bunnies.size() << " Bunnies at " << average << " FPS" << std::endl;
 	}
 
 	glfwTerminate();
