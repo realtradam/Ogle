@@ -3,7 +3,7 @@ EXE := game
 BUILD_DIR := build
 INC_FLAGS := -Isrc -Iglfw/build/include -Iglad/include -Istb -Iglm
 LINK_FLAGS := -lGL -lX11 -lpthread -lXrandr -lXi -ldl
-OBJ_NAMES := glad.o input.o shader.o texture.o
+OBJ_NAMES := glad.o input.o shader.o batch.o texture.o
 OBJ_FILES := $(addprefix $(BUILD_DIR)/, $(OBJ_NAMES))
 
 
@@ -20,9 +20,16 @@ input.o: src/input.cpp src/input.hpp
 shader.o: src/shader.cpp src/shader.hpp
 	@mkdir -p $(BUILD_DIR)
 	g++ -o $(BUILD_DIR)/shader.o -c src/shader.cpp $(INC_FLAGS) $(LINK_FLAGS)
+batch.o: src/batch.cpp src/batch.hpp
+	@mkdir -p $(BUILD_DIR)
+	g++ -o $(BUILD_DIR)/batch.o -c src/batch.cpp $(INC_FLAGS) $(LINK_FLAGS)
 texture.o: src/texture.cpp src/texture.hpp
 	@mkdir -p $(BUILD_DIR)
 	g++ -o $(BUILD_DIR)/texture.o -c src/texture.cpp $(INC_FLAGS) $(LINK_FLAGS)
+
+.PHONY: clean
+clean:
+	rm -r $(BUILD_DIR)
 
 .PHONY: run
 run: default
