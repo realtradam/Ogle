@@ -28,6 +28,9 @@ namespace Window {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // 4.6 is highest
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		
+		glfwSwapInterval(1);
 
 		window = glfwCreateWindow(width, height, title, NULL, NULL);
 		if (window == NULL)
@@ -44,7 +47,7 @@ namespace Window {
 			return -1;
 		}
 
-		glViewport(0, 0, 800, 600);
+		glViewport(0, 0, width, height);
 
 		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 

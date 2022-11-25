@@ -4,6 +4,10 @@
 
 #include "glad/glad.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 class Shader
 {
 	public:
@@ -26,4 +30,5 @@ class Shader
 				float value2,
 				float value3
 				) const;
+		void setMatrix4fv(const std::string &name, glm::mat4 matrix);
 };

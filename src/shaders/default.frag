@@ -9,13 +9,14 @@ uniform sampler2D texture_1;
 
 void main()
 {
-	if(v_TexId > 0)
-	{
-		FragColor = texture(texture_1, v_TexCoord) * v_Color;
-	}
-	else
-	{
-		FragColor = v_Color;
-	}
+	FragColor = texture(texture_1, v_TexCoord) * v_Color;
+	//if(v_TexId > 0)
+	//{
+	//	FragColor = texture(texture_1, v_TexCoord) * v_Color;
+	//}
+	//else
+	//{
+	//	FragColor = v_Color;
+	//}
 } 
 

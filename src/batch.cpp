@@ -74,10 +74,10 @@ int Batch::drawTexture(
 	float h_width = width / 2.0;
 	return this->primativeDrawQuad(
 			texture.id,
-			glm::vec3(x+h_height,y+h_width,0.0f), // top right
-			glm::vec3(x+h_height, y-h_width, 0.0f), // bottom right
-			glm::vec3(x-h_height, y-h_width, 0.0f), // bottom left
-			glm::vec3(x-h_height, y+h_height, 0.0f), // top left 
+			glm::vec3(x+h_height,y+h_width, -1.0f), // top right
+			glm::vec3(x+h_height, y-h_width, -1.0f), // bottom right
+			glm::vec3(x-h_height, y-h_width, -1.0f), // bottom left
+			glm::vec3(x-h_height, y+h_height, -1.0f), // top left 
 			color
 			);
 }
@@ -95,10 +95,10 @@ int Batch::drawRectangle(
 	float h_width = width / 2.0;
 	return this->primativeDrawQuad(
 			0,
-			glm::vec3(x+h_height,y+h_width,0.0f), // top right
-			glm::vec3(x+h_height, y-h_width, 0.0f), // bottom right
-			glm::vec3(x-h_height, y-h_width, 0.0f), // bottom left
-			glm::vec3(x-h_height, y+h_height, 0.0f), // top left 
+			glm::vec3(x+h_height,y+h_width, -1.0f), // top right
+			glm::vec3(x+h_height, y-h_width, -1.0f), // bottom right
+			glm::vec3(x-h_height, y-h_width, -1.0f), // bottom left
+			glm::vec3(x-h_height, y+h_height, -1.0f), // top left 
 			color
 			);
 }
@@ -170,7 +170,7 @@ void Batch::flush_batch()
 			GL_ARRAY_BUFFER,
 			vertices.size() * sizeof(float),
 			vertices.data(),
-			GL_STATIC_DRAW
+			GL_DYNAMIC_DRAW
 			);
 
 	// we already binded this in the VAO during initialization
@@ -180,7 +180,7 @@ void Batch::flush_batch()
 			GL_ELEMENT_ARRAY_BUFFER,
 			indices.size() * sizeof(unsigned int),
 			indices.data(),
-			GL_STATIC_DRAW
+			GL_DYNAMIC_DRAW
 			);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, last_texture);
@@ -188,7 +188,7 @@ void Batch::flush_batch()
 
 	glBindVertexArray(0); // unbind the VAO
 
-	last_texture = -1;
+	last_texture = 0;
 	size = 0;
 	vertices.clear();
 	indices.clear();
