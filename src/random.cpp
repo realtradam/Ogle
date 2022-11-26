@@ -5,10 +5,13 @@
 // std libs
 #include <cstdlib>
 
-namespace Random
+namespace Ogle
 {
-	int get_value(int min, int max)
+	namespace Random
 	{
-		return (std::rand()%(abs(max - min) + 1) + min);
+		int get_value(int min, int max)
+		{
+			return (std::rand()%(abs(max - min) + 1) + min);
+		}
 	}
 }

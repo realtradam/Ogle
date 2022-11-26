@@ -3,9 +3,12 @@
 // external libs
 #include "glad/glad.h"
 
-class Texture
+namespace Ogle
 {
-	public:
-		unsigned int id;
-		Texture(const char* texture_path);
-};
+	class Texture
+	{
+		public:
+			unsigned int id;
+			Texture(const char* texture_path);
+	};
+}

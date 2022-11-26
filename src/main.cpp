@@ -18,10 +18,12 @@
 #include <cmath>
 #include <chrono>
 
+using namespace Ogle;
+
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 450;
 
-const int MAX_BUNNIES = 15000;
+const int MAX_BUNNIES = 50000;
 typedef struct Bunny {
 	glm::vec2 position;
 	glm::vec2 speed;
